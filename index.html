@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="si">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>සිංහල Stock Guru — CSE සමාගම් විශ්ලේෂණය</title>
+<style>
+:root{--navy:#12233f;--teal:#087f8c;--bg:#f4f7fb;--muted:#64748b;--line:#dbe4ee}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,"Noto Sans Sinhala",sans-serif;background:var(--bg);color:#172033}
+header{background:linear-gradient(120deg,#10213d,#087f8c);color:#fff;padding:26px 18px}
+.wrap{max-width:1050px;margin:auto;padding:0 16px}
+h1{font-size:clamp(24px,4vw,36px);margin:0 0 8px}header p{margin:0;color:#e1f4f5}
+main{padding:22px 0 40px}.panel,.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 3px 14px #10213d0a}
+.searchrow{display:flex;gap:10px;margin-top:14px}.searchrow input{flex:1;min-width:0;padding:13px;border:1px solid #bdcad8;border-radius:10px;font:inherit}
+button,.btn{border:0;border-radius:10px;background:var(--teal);color:#fff;padding:12px 16px;font:inherit;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin:16px 0}
+.card h3{font-size:16px;margin:0 0 8px;color:var(--navy)}.card p{margin:0;color:#46546a;line-height:1.65}.muted{color:var(--muted);font-size:14px}
+.links{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}.links a{font-size:14px}
+h2{font-size:21px;color:var(--navy);margin:25px 0 12px}
+label{display:block;font-weight:650;margin:10px 0 5px}input[type=number]{width:100%;padding:10px;border:1px solid #bdcad8;border-radius:9px;font:inherit}
+.formgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.result{background:#edf8f8;border-radius:10px;padding:12px;margin-top:12px;line-height:1.7}
+.warning{background:#fff8e8;border:1px solid #f1d69c;border-radius:12px;padding:13px;line-height:1.65;margin-top:18px}
+footer{color:var(--muted);font-size:13px;padding:16px 0 30px}
+@media(max-width:720px){.grid,.formgrid{grid-template-columns:1fr}.searchrow{flex-direction:column}.searchrow button{width:100%}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+<h1>සිංහල Stock Guru</h1>
+<p>සමාගමක කොටස් මිල, ලාභය, ණය, ලාභාංශ සහ අනාගත සැලසුම් සරල සිංහලෙන් තේරුම් ගන්න.</p>
+</div></header>
+<main class="wrap">
+<section class="panel">
+<h2 style="margin-top:0">සමාගමක් සොයන්න</h2>
+<p class="muted">සමාගමේ නම හෝ CSE කොටස් සංකේතය ඇතුළත් කරන්න. උදා: COMB, JKH, DIAL</p>
+<div class="searchrow">
+<input id="company" placeholder="සමාගමේ නම හෝ කොටස් සංකේතය" aria-label="සමාගමේ නම හෝ සංකේතය">
+<button onclick="searchCompany()">සෙවීම අරඹන්න</button>
+</div>
+<div id="companyResult" class="result" hidden></div>
+<div class="links">
+<a class="btn" href="https://www.cse.lk/" target="_blank" rel="noopener">CSE නිල වෙබ් අඩවිය</a>
+<a class="btn" href="https://www.cse.lk/pages/company-profile/company-profile.component.html" target="_blank" rel="noopener">CSE සමාගම් තොරතුරු</a>
+</div>
+</section>
+
+<h2>සමාගමක් ගැන පරීක්ෂා කළ යුතු කරුණු</h2>
+<div class="grid">
+<div class="card"><h3>📈 කොටස් මිල</h3><p>අද මිල සහ පසුගිය කාලයේ මිල වෙනස්වීම බලන්න. මිල අඩු වීම පමණක් සමාගම හොඳ බවට සාක්ෂියක් නොවේ.</p></div>
+<div class="card"><h3>💰 ලාභය</h3><p>අවුරුදු 3–5ක ලාභය සසඳන්න. ලාභය දිගටම වැඩි වෙනවාද, නැත්නම් අඩු වෙනවාද?</p></div>
+<div class="card"><h3>🏦 ණය සහ පොලී</h3><p>Total Borrowings, Finance Costs සහ ණය ආපසු ගෙවීම් පරීක්ෂා කරන්න.</p></div>
+<div class="card"><h3>💵 ලාභාංශ</h3><p>සමාගම ලාභාංශ ගෙවන ඉතිහාසය, ගෙවූ මුදල සහ එය පවත්වාගෙන යා හැකිද යන්න බලන්න.</p></div>
+<div class="card"><h3>🏭 අනාගත සංවර්ධනය</h3><p>අලුත් ව්‍යාපෘති, ශාඛා, නිෂ්පාදන සහ ආයෝජන ගැන නිල නිවේදන කියවන්න.</p></div>
+<div class="card"><h3>⚠️ අවදානම්</h3><p>ලාභ අඩුවීම, ඉහළ ණය, මුදල් ප්‍රවාහ ගැටලු, නඩු සහ නියාමන නිවේදන ගැන සොයන්න.</p></div>
+</div>
+
+<section class="panel">
+<h2 style="margin-top:0">මූල්‍ය අගයන් ඇතුළත් කර සරලව පරීක්ෂා කරන්න</h2>
+<p class="muted">මෙය ගණනය කිරීමේ උදාහරණයක් පමණයි. Annual Report එකෙන් අගයන් සොයා ඇතුළත් කරන්න. රුපියල් හෝ එකම ඒකකය භාවිත කරන්න.</p>
+<div class="formgrid">
+<div><label for="profit1">පසුගිය වසරේ ලාභය</label><input type="number" id="profit1" placeholder="උදා: 150"></div>
+<div><label for="profit2">මේ වසරේ ලාභය</label><input type="number" id="profit2" placeholder="උදා: 200"></div>
+<div><label for="debt">මුළු ණය</label><input type="number" id="debt" placeholder="උදා: 700"></div>
+<div><label for="equity">හිමිකම් ප්‍රාග්ධනය (Equity)</label><input type="number" id="equity" placeholder="උදා: 500"></div>
+<div><label for="cash">මෙහෙයුම්වලින් ලැබුණු මුදල් (Operating Cash Flow)</label><input type="number" id="cash" placeholder="උදා: 180"></div>
+<div><label for="interest">පොලී වියදම (Finance Costs)</label><input type="number" id="interest" placeholder="උදා: 30"></div>
+</div>
+<p style="margin-top:14px"><button onclick="calculate()">ගණනය කරන්න</button></p>
+<div id="calcResult" class="result" hidden></div>
+</section>
+
+
+<section class="panel" style="margin-top:16px">
+<h2 style="margin-top:0">P/E Ratio සහ කොටස මිල අධිකද කියලා පරීක්ෂා කරන්න</h2>
+<p class="muted">කොටසක වර්තමාන මිල සහ EPS (කොටසකට ලැබෙන වාර්ෂික ඉපැයීම) ඇතුළත් කරන්න.</p>
+<div class="formgrid">
+<div><label for="pePrice">කොටසක වෙළඳපොළ මිල (රු.)</label><input type="number" id="pePrice" min="0" step="any" placeholder="උදා: 120"></div>
+<div><label for="eps">කොටසක වාර්ෂික ඉපැයීම EPS (රු.)</label><input type="number" id="eps" step="any" placeholder="උදා: 10"></div>
+<div><label for="industryPE">සසඳන P/E අගය (විකල්ප)</label><input type="number" id="industryPE" min="0" step="any" placeholder="උදා: 12"></div>
+</div>
+<p style="margin-top:14px"><button onclick="calculatePE()">P/E ගණනය කරන්න</button></p>
+<div id="peResult" class="result" hidden></div>
+<p class="muted">P/E අගය තනිවම කොටසක් මිලදී ගත යුතුද කියලා තීරණය කරන්න ප්‍රමාණවත් නැහැ. එකම ක්ෂේත්‍රයේ සමාගම්, ලාභයේ වර්ධනය, ණය සහ අවදානම් සමඟ සසඳන්න. EPS ශුන්‍ය හෝ ඍණ නම් සාමාන්‍ය P/E අර්ථකථනය ප්‍රයෝජනවත් නොවිය හැකියි.</p>
+</section>
+
+<section class="panel" style="margin-top:16px">
+<h2 style="margin-top:0">කොටස් මිලදී ගත්තොත් ලාභයද අලාභයද?</h2>
+<p class="muted">ඔයා මිලදී ගත් මිල, දැන් තියෙන/විකුණන්න බලාපොරොත්තු වන මිල සහ කොටස් ගණන ඇතුළත් කරන්න.</p>
+<div class="formgrid">
+<div><label for="buyPrice">මිලදී ගත් කොටසක මිල (රු.)</label><input type="number" id="buyPrice" min="0" step="any" placeholder="උදා: 100"></div>
+<div><label for="sellPrice">දැනට මිල / විකුණන මිල (රු.)</label><input type="number" id="sellPrice" min="0" step="any" placeholder="උදා: 115"></div>
+<div><label for="shares">කොටස් ගණන</label><input type="number" id="shares" min="1" step="1" placeholder="උදා: 50"></div>
+<div><label for="fees">ගනුදෙනු ගාස්තු (මුළු රු.)</label><input type="number" id="fees" min="0" step="any" value="0"></div>
+</div>
+<p style="margin-top:14px"><button onclick="calculateProfitLoss()">ලාභය / අලාභය ගණනය කරන්න</button></p>
+<div id="plResult" class="result" hidden></div>
+<p class="muted">මෙය ඇතුළත් කළ මිල අනුව ගණනය කරන ඇස්තමේන්තුවක්. සැබෑ ලාභයට CSE/බ්‍රෝකර් ගාස්තු, අදාළ බදු, මිල වෙනස්වීම් සහ ඇණවුම ක්‍රියාත්මක වන මිල බලපාන්න පුළුවන්. විකුණන තුරු මෙය කඩදාසි මත ලාභයක්/අලාභයක් පමණක් විය හැකියි.</p>
+</section>
+
+
+
+<section class="panel" style="margin-top:16px" id="reportFinder">
+<h2 style="margin-top:0">සමාගමේ Annual Report සොයන්න</h2>
+<p class="muted">සමාගමේ නම හෝ ticker එක සහ වර්ෂය තෝරන්න. පහත සබැඳි මඟින් CSE නිල වෙබ් අඩවිය සහ සමාගමේ නිල වාර්තා සෙවිය හැකියි.</p>
+<div class="formgrid">
+<div><label for="finderCompany">සමාගමේ නම / ticker</label><input id="finderCompany" placeholder="උදා: Commercial Bank / COMB"></div>
+<div><label for="finderYear">වාර්තා වර්ෂය</label><select id="finderYear" style="width:100%;padding:11px;border:1px solid #bdcad8;border-radius:9px;font:inherit"><option>2025</option><option>2024</option><option>2023</option><option>2022</option><option>2021</option><option>2020</option><option>2019</option><option>2018</option></select></div>
+<div><label for="finderType">සොයන ලේඛනය</label><select id="finderType" style="width:100%;padding:11px;border:1px solid #bdcad8;border-radius:9px;font:inherit"><option value="annual report">Annual Report (වාර්ෂික වාර්තාව)</option><option value="quarterly financial statements">Quarterly Financial Statements (කාර්තු වාර්තාව)</option><option value="dividend announcement">Dividend Announcement (ලාභාංශ නිවේදනය)</option><option value="interim financial statements borrowings debt">ණය සහ මූල්‍ය තොරතුරු</option></select></div>
+</div>
+<p style="margin-top:14px"><button onclick="findAnnualReport()">වාර්තාව සොයන්න</button></p>
+<div id="finderLinks" class="result" hidden></div>
+<div class="links">
+<a class="btn" href="https://www.cse.lk/" target="_blank" rel="noopener">CSE නිල වෙබ් අඩවිය</a>
+<a class="btn" href="https://stockdetails.iamsupun.com/reports/2025/" target="_blank" rel="noopener">වාර්ෂික වාර්තා ලැයිස්තුව (තෙවන පාර්ශ්වය)</a>
+</div>
+<p class="muted">සටහන: මේ මුල් අනුවාදය සෙවුම් සබැඳි සාදයි; වෙබ් අඩවිවලින් PDF ස්වයංක්‍රීයව බාගත කිරීම හෝ සියලු වාර්තා තහවුරු කිරීම තවම කරන්නේ නැහැ. සමාගමට අදාළ ලේඛනය තෝරාගැනීමට ලින්ක් එක විවෘත කර වාර්ෂික වාර්තාව PDF ලෙස ලබාගන්න.</p>
+</section>
+
+<section class="panel" style="margin-top:16px" id="annualResearch">
+<h2 style="margin-top:0">වාර්ෂික වාර්තාව කියවා සරල සිංහලෙන් පර්යේෂණය</h2>
+<p class="muted">සමාගමේ නම, වාර්තා වර්ෂය සහ වාර්තාවේ අදාළ පෙළ ඇතුළත් කළාම පහත මෙවලම සරල පර්යේෂණ සාරාංශයක් සකස් කරයි. PDF එකකින් පෙළ copy කර මෙහි paste කරන්න.</p>
+<div class="formgrid">
+<div><label for="researchCompany">සමාගමේ නම / ticker</label><input id="researchCompany" placeholder="උදා: COMB / Commercial Bank"></div>
+<div><label for="researchYear">වාර්තා වර්ෂය</label><input id="researchYear" type="number" placeholder="උදා: 2025"></div>
+<div><label for="researchPrice">දැනට කොටසක මිල (රු.) — විකල්ප</label><input id="researchPrice" type="number" step="any" placeholder="මිල දන්නවා නම්"></div>
+</div>
+<label for="annualUrl">වාර්ෂික වාර්තාවේ සබැඳිය (විකල්ප)</label>
+<input id="annualUrl" style="width:100%;padding:10px;border:1px solid #bdcad8;border-radius:9px;font:inherit" placeholder="Annual Report PDF link">
+<label for="annualText">වාර්තාවෙන් copy කළ පෙළ</label>
+<textarea id="annualText" rows="8" style="width:100%;padding:12px;border:1px solid #bdcad8;border-radius:10px;font:inherit;resize:vertical" placeholder="මෙහි annual report එකේ management discussion, financial statements, borrowings, cash flow, dividend සහ future plans අදාළ කොටස් paste කරන්න..."></textarea>
+<p style="margin-top:14px"><button onclick="makeAnnualSummary()">සරල සිංහලෙන් පර්යේෂණය පෙන්වන්න</button></p>
+<div id="annualSummary" class="result" hidden></div>
+<p class="muted">මෙම ආදර්ශය paste කළ පෙළේ වචන/සංඛ්‍යා සොයා මූලික සාරාංශයක් සකස් කරයි. PDF එක upload කර ස්වයංක්‍රීයව කියවීම, CSE වෙතින් වාර්තා සොයාගැනීම සහ AI මඟින් තහවුරු කළ විශ්ලේෂණය සඳහා තවදුරටත් backend/API සම්බන්ධ කිරීම අවශ්‍යයි.</p>
+</section>
+
+<section class="panel" style="margin-top:16px">
+<h2 style="margin-top:0">නිල වාර්තා හොයන හැටි</h2>
+<ol style="line-height:1.9">
+<li>CSE වෙබ් අඩවියේ සමාගම තෝරන්න.</li>
+<li>Annual Report (වාර්ෂික වාර්තාව) සහ Quarterly Financial Statements (කාර්තු වාර්තා) විවෘත කරන්න.</li>
+<li>ණය සඳහා “Borrowings”, ලාභය සඳහා “Profit for the year”, මුදල් සඳහා “Cash Flow” සොයන්න.</li>
+<li>“Future Outlook”, “Projects” සහ “Capital Expenditure” කොටස්වල අනාගත සැලසුම් බලන්න.</li>
+</ol>
+<p class="muted">සමාගමේ නමෙන් අදාළ වාර්තා සෙවීමට:</p>
+<a id="googleLink" class="btn" href="https://www.google.com/search?q=Sri+Lanka+CSE+company+annual+report" target="_blank" rel="noopener">Annual Report සොයන්න</a>
+</section>
+<div class="warning"><strong>වැදගත්:</strong> මේ මුල් ආදර්ශ වෙබ් අඩවිය සජීවී CSE දත්ත ස්වයංක්‍රීයව ලබාගන්නා සම්පූර්ණ පද්ධතියක් නොවේ. කොටස් මිල, ණය, ලාභය සහ ව්‍යාපෘති පිළිබඳ නිශ්චිත දත්ත තහවුරු කිරීමට CSE සහ සමාගමේ නිල වාර්තා පරීක්ෂා කළ යුතුයි. ගණනය කිරීමේ ප්‍රතිඵල ආයෝජන නිර්දේශයක් නොවේ.</div>
+</main>
+<footer class="wrap">සිංහල Stock Guru • අධ්‍යාපනික භාවිතය සඳහා</footer>
+<script>
+function searchCompany(){
+ const c=document.getElementById('company').value.trim();
+ if(!c){alert('කරුණාකර සමාගමේ නම හෝ කොටස් සංකේතය ඇතුළත් කරන්න.');return;}
+ const box=document.getElementById('companyResult');
+ box.hidden=false;
+ box.innerHTML='<strong>'+escapeHtml(c)+'</strong> ගැන සෙවීම සඳහා නිල CSE වෙබ් අඩවිය විවෘත කරන්න. මේ ආදර්ශ අනුවාදය සමාගම් දත්ත ස්වයංක්‍රීයව ලබා නොගනී; පහත සබැඳියෙන් වාර්තා සොයාගන්න.';
+ document.getElementById('googleLink').href='https://www.google.com/search?q='+encodeURIComponent(c+' Sri Lanka CSE annual report financial statements debt profit dividend future plans');
+}
+function escapeHtml(s){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+function num(id){const v=document.getElementById(id).value;return v===''?null:Number(v);}
+function calculate(){
+ const p1=num('profit1'),p2=num('profit2'),d=num('debt'),e=num('equity'),cash=num('cash'),i=num('interest');
+ let out=[];
+ if(p1!==null&&p2!==null){
+  if(p1!==0){let ch=((p2-p1)/Math.abs(p1))*100;out.push('ලාභයේ වෙනස: '+(ch>=0?'වැඩිවීම ':'අඩුවීම ')+Math.abs(ch).toFixed(1)+'%.');}
+  else out.push('පසුගිය වසරේ ලාභය 0 නිසා ප්‍රතිශත වෙනස ගණනය කළ නොහැක.');
+  out.push(p2>p1?'සරල අදහස: ලාභය වැඩි වී ඇත. හේතුවත් පරීක්ෂා කරන්න.':p2<p1?'සරල අදහස: ලාභය අඩු වී ඇත. හේතුව සොයන්න.':'සරල අදහස: ලාභය සමානයි.');
+ }
+ if(d!==null&&e!==null&&e!==0){const r=d/e;out.push('ණය / හිමිකම් අනුපාතය: '+r.toFixed(2)+' ගුණයක්. මෙය සමාගමේ කර්මාන්තය අනුව අර්ථකථනය කළ යුතුයි.');}
+ if(cash!==null&&i!==null){out.push('මෙහෙයුම් මුදල් ප්‍රවාහය පොලී වියදමට '+(i===0?'සාපේක්ෂව ගණනය කළ නොහැක.':(cash/i).toFixed(2)+' ගුණයක්.'));out.push(cash>=i?'මෙම අගයන් අනුව මෙහෙයුම් මුදල් ප්‍රවාහය පොලී වියදමට වඩා වැඩියි.':'අවධානය: මෙහෙයුම් මුදල් ප්‍රවාහය පොලී වියදමට වඩා අඩුයි.');}
+ if(!out.length)out.push('කරුණාකර අවම වශයෙන් අගයන් දෙකක් අදාළ කොටුවල ඇතුළත් කරන්න.');
+ const box=document.getElementById('calcResult');box.hidden=false;box.textContent=out.join(' ');
+}
+
+function fmtLKR(n){return 'රු. '+n.toLocaleString('en-LK',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function calculatePE(){
+ const price=Number(document.getElementById('pePrice').value);
+ const eps=Number(document.getElementById('eps').value);
+ const peer=Number(document.getElementById('industryPE').value);
+ const peerRaw=document.getElementById('industryPE').value;
+ const box=document.getElementById('peResult');box.hidden=false;
+ if(document.getElementById('pePrice').value===''||document.getElementById('eps').value===''||price<0){
+  box.textContent='කරුණාකර නිවැරදි කොටස් මිලක් සහ EPS අගයක් ඇතුළත් කරන්න.';return;
+ }
+ if(eps<=0){box.textContent='EPS අගය ශුන්‍ය හෝ ඍණයි. සාමාන්‍ය P/E අනුපාතය අර්ථවත් ලෙස ගණනය කළ නොහැක. සමාගමේ ලාභ/අලාභ තත්ත්වය සහ අනෙකුත් දත්ත බලන්න.';return;}
+ const pe=price/eps;
+ let msg='P/E Ratio = '+pe.toFixed(2)+' ගුණයක්. ';
+ msg+='අර්ථය: කොටසක වාර්ෂික ඉපැයීමේ රු. 1කට වෙළඳපොළ මිල රු. '+pe.toFixed(2)+'ක් ලෙස මිල නියම වී ඇත. ';
+ if(peerRaw!==''){
+  if(peer>0){
+   const fair=eps*peer, diff=(price-fair)/fair*100;
+   msg+='ඔයා ඇතුළත් කළ සසඳන P/E අගය '+peer.toFixed(2)+' නම්, එය මත ගණනය වන සරල සැසඳුම් මිල '+fmtLKR(fair)+'ක්. ';
+   msg+=diff>0?'වර්තමාන මිල එම අගයට වඩා '+diff.toFixed(1)+'% ඉහළයි. ':diff<0?'වර්තමාන මිල එම අගයට වඩා '+Math.abs(diff).toFixed(1)+'% පහළයි. ':'වර්තමාන මිල එම අගයට සමානයි. ';
+   msg+='මෙය වෙළඳපොළේ නියම වටිනාකම සහතික කරන එකක් නොවේ; සසඳන P/E අගය සාධාරණද කියා තහවුරු කරන්න.';
+  } else {msg+='සසඳන P/E අගය ධන අගයක් විය යුතුයි.';}
+ }
+ box.textContent=msg;
+}
+function calculateProfitLoss(){
+ const bRaw=document.getElementById('buyPrice').value,sRaw=document.getElementById('sellPrice').value,nRaw=document.getElementById('shares').value,fRaw=document.getElementById('fees').value;
+ const b=Number(bRaw),s=Number(sRaw),n=Number(nRaw),f=fRaw===''?0:Number(fRaw);
+ const box=document.getElementById('plResult');box.hidden=false;
+ if(bRaw===''||sRaw===''||nRaw===''||b<0||s<0||n<=0||!Number.isInteger(n)||f<0){box.textContent='කරුණාකර මිල සහ කොටස් ගණන නිවැරදිව ඇතුළත් කරන්න.';return;}
+ const invested=b*n, proceeds=s*n, gross=proceeds-invested, net=gross-f, pct=invested===0?null:gross/invested*100;
+ let msg='මිලදී ගැනීමට වැය වූ මුදල: '+fmtLKR(invested)+'. විකිණීමෙන් ලැබෙන මුදල (ගාස්තු අඩු කිරීමට පෙර): '+fmtLKR(proceeds)+'. ';
+ msg+='දළ '+(gross>=0?'ලාභය':'අලාභය')+': '+fmtLKR(Math.abs(gross))+'. ';
+ msg+='ඇතුළත් කළ ගනුදෙනු ගාස්තු '+fmtLKR(f)+' අඩු කළ පසු ඇස්තමේන්තුගත '+(net>=0?'ලාභය':'අලාභය')+': '+fmtLKR(Math.abs(net))+'. ';
+ if(pct!==null)msg+='මිලදී ගැනීමේ වියදමට සාපේක්ෂ දළ ප්‍රතිලාභය: '+pct.toFixed(2)+'%. ';
+ msg+='සැබෑ ගාස්තු සහ බදු ඇතුළත් නොවිය හැකියි.';
+ box.textContent=msg;
+}
+
+
+function makeAnnualSummary(){
+ const company=document.getElementById('researchCompany').value.trim()||'සමාගම සඳහන් කර නැත';
+ const year=document.getElementById('researchYear').value||'වර්ෂය සඳහන් කර නැත';
+ const priceRaw=document.getElementById('researchPrice').value;
+ const url=document.getElementById('annualUrl').value.trim();
+ const t=document.getElementById('annualText').value.trim();
+ const box=document.getElementById('annualSummary');box.hidden=false;
+ if(!t){
+  box.textContent='වාර්තාව විශ්ලේෂණය කිරීමට පෙර annual report එකෙන් පෙළ copy කර ඉහත කොටුවට paste කරන්න. වාර්තාවේ සබැඳිය පමණක් දීමෙන් මෙම මුල් අනුවාදය PDF එක ස්වයංක්‍රීයව කියවන්නේ නැහැ.';
+  return;
+ }
+ const low=t.toLowerCase();
+ const checks=[
+  ['ලාභය','profit','ලාභය/අලාභය ගැන සඳහන් වචන හමු වුණා. Net profit, profit after tax සහ පෙර වසරේ අගයන් සසඳලා ලාභය වැඩිවුණාද තහවුරු කරන්න.'],
+  ['ණය','borrowings','ණය/borrowings ගැන සඳහන් වචන හමු වුණා. මුළු ණය, පෙර වසරේ ණය සහ ණය ගෙවීම් සසඳන්න.'],
+  ['මුදල් ප්‍රවාහය','cash flow','Cash Flow ගැන සඳහන් වචන හමු වුණා. මෙහෙයුම්වලින් ලැබෙන මුදල් ධනද, ණය සහ ආයෝජන සඳහා ප්‍රමාණවත්ද බලන්න.'],
+  ['ලාභාංශ','dividend','ලාභාංශ ගැන සඳහන් වචන හමු වුණා. එක් කොටසකට ගෙවූ මුදල, දිනය සහ පසුගිය වසර සමඟ සසඳන්න.'],
+  ['අනාගත සැලසුම්','future outlook','අනාගත සැලසුම් සම්බන්ධ වචන හමු වුණා. ව්‍යාපෘති සඳහා මුදල්, කාලසටහන සහ ක්‍රියාත්මක වීම පිළිබඳ නිල විස්තර තහවුරු කරන්න.'],
+  ['අවදානම්','risk','අවදානම් සම්බන්ධ වචන හමු වුණා. කළමනාකරණය සඳහන් කර ඇති වෙළඳපොළ, ණය, විනිමය සහ නීතිමය අවදානම් කියවන්න.'],
+  ['විගණක වාර්තාව','auditor','විගණක සම්බන්ධ වචන හමු වුණා. Auditor opinion එක සහ going concern/qualified opinion වැනි සටහන් පරීක්ෂා කරන්න.']
+ ];
+ let found=checks.filter(x=>low.includes(x[1]));
+ let out='<strong>'+escapeHtml(company)+' — '+escapeHtml(String(year))+' වාර්තා සාරාංශය</strong><br><br>';
+ out+='<strong>පෙළේ දිග:</strong> අක්ෂර '+t.length.toLocaleString()+'ක්.<br>';
+ if(priceRaw!=='')out+='<strong>ඔයා ඇතුළත් කළ කොටස් මිල:</strong> '+fmtLKR(Number(priceRaw))+' (මෙය සජීවී මිලක් බව තහවුරු කර නැහැ).<br>';
+ out+='<br><strong>වාර්තාවෙන් පරීක්ෂා කළ යුතු කරුණු:</strong><br>';
+ if(found.length)out+=found.map(x=>'• <strong>'+x[0]+':</strong> '+x[2]).join('<br><br>');
+ else out+='මෙම පෙළෙන් සාමාන්‍ය මූල්‍ය වචන හඳුනාගන්න බැරි වුණා. English financial statements සහ management discussion කොටස් paste කරන්න.';
+ out+='<br><br><strong>ඊළඟට බලන්න:</strong><br>1. මේ වසර සහ පසුගිය වසරේ අගයන් එකම ඒකකයකින් සසඳන්න.<br>2. EPS, P/E, ණය/හිමිකම් අනුපාතය සහ මෙහෙයුම් මුදල් ප්‍රවාහය ගණනය කරන්න.<br>3. වාර්තාවේ සටහන් සහ විගණක මතය කියවන්න.<br>4. කළමනාකරණයේ අනාගත සැලසුම් සහ ඒවාට ඇති අවදානම් සසඳන්න.';
+ if(url && /^https?:\/\//i.test(url))out+='<br><br><a href="'+escapeHtml(url)+'" target="_blank" rel="noopener">ඇතුළත් කළ වාර්තාව විවෘත කරන්න</a>';
+ out+='<br><br><strong>සීමාව:</strong> මෙය පෙළේ වචන හඳුනාගන්නා මුල් සාරාංශයක් පමණයි; ස්වයංක්‍රීය විගණනයක් හෝ මිලදී ගැනීමේ නිර්දේශයක් නොවේ. නිශ්චිත සංඛ්‍යා වාර්තාවේ මූල්‍ය වගු සමඟ තහවුරු කළ යුතුයි.';
+ box.innerHTML=out;
+}
+
+
+function findAnnualReport(){
+ const company=document.getElementById('finderCompany').value.trim();
+ const year=document.getElementById('finderYear').value;
+ const type=document.getElementById('finderType').value;
+ const box=document.getElementById('finderLinks');box.hidden=false;
+ if(!company){box.textContent='කරුණාකර සමාගමේ නම හෝ ticker එක ඇතුළත් කරන්න.';return;}
+ const q=encodeURIComponent('"'+company+'" '+year+' '+type+' Sri Lanka CSE');
+ const qCse=encodeURIComponent('site:cse.lk "'+company+'" '+year+' '+type);
+ const qPdf=encodeURIComponent('"'+company+'" '+year+' annual report filetype:pdf');
+ const qIR=encodeURIComponent('"'+company+'" investor relations annual reports '+year);
+ box.innerHTML='<strong>'+escapeHtml(company)+' — '+year+' — '+escapeHtml(type)+'</strong><br><br>'+
+ '<p><a target="_blank" rel="noopener" href="https://www.google.com/search?q='+qCse+'">1. CSE වෙබ් අඩවියේ සොයන්න</a></p>'+
+ '<p><a target="_blank" rel="noopener" href="https://www.google.com/search?q='+qPdf+'">2. PDF වාර්තාව සොයන්න</a></p>'+
+ '<p><a target="_blank" rel="noopener" href="https://www.google.com/search?q='+qIR+'">3. සමාගමේ නිල Investor Relations පිටුව සොයන්න</a></p>'+
+ '<p><a target="_blank" rel="noopener" href="https://www.google.com/search?q='+q+'">4. සියලු අදාළ ප්‍රතිඵල සොයන්න</a></p>'+
+ '<p class="muted">නිල CSE හෝ සමාගමේ වෙබ් අඩවියෙන් නිකුත් කළ ලේඛනයක්ද, නිවැරදි වර්ෂයද කියලා තහවුරු කරන්න.</p>';
+}
+
+</script>
+</body>
+</html>
