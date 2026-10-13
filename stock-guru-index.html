@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="si">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stock Guru | සිංහල කොටස් වෙළෙඳපොළ ඉගෙනුම</title>
+<style>
+:root{--bg:#f3f6fb;--card:#fff;--ink:#152238;--muted:#5d6b82;--blue:#175cd3;--line:#dce4ef;--green:#067647}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,"Noto Sans Sinhala",sans-serif;line-height:1.6}
+header{background:linear-gradient(120deg,#102a56,#175cd3);color:white;padding:28px 16px}
+.wrap{max-width:980px;margin:auto;padding:0 16px}h1{margin:0 0 6px;font-size:30px}header p{margin:0;color:#e4edff}
+main{padding:20px 0 44px}.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin:0 0 16px;box-shadow:0 3px 12px #14213d0b}
+h2{font-size:20px;margin:0 0 10px}h3{font-size:16px;margin:14px 0 6px}p{margin:7px 0}.muted{color:var(--muted);font-size:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1;min-width:180px}
+input,textarea,button{font:inherit;border-radius:9px;padding:11px 12px;border:1px solid #c8d3e2;width:100%}
+textarea{min-height:130px;resize:vertical}button{background:var(--blue);color:white;border:0;font-weight:700;cursor:pointer}button.secondary{background:#eaf1ff;color:#1649a0;border:1px solid #cbdcff}
+.links{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}.links a{display:inline-block;background:#edf3ff;border:1px solid #d5e3ff;color:#174ea6;text-decoration:none;padding:8px 11px;border-radius:8px}
+.notice{background:#fff8e6;border-left:4px solid #e5a000;padding:11px 13px;border-radius:7px;font-size:14px}
+.result{background:#f7f9fc;border:1px solid var(--line);padding:13px;border-radius:10px;margin-top:12px}
+.stat{background:#f7f9fc;border:1px solid var(--line);padding:12px;border-radius:10px}
+.stat strong{display:block;font-size:21px;color:var(--green)}footer{text-align:center;color:var(--muted);font-size:13px;padding:10px 0 30px}
+</style>
+</head>
+<body>
+<header><div class="wrap"><h1>📈 Stock Guru</h1><p>ශ්‍රී ලංකා කොටස් වෙළෙඳපොළ — සිංහලෙන් ඉගෙන ගනිමු</p></div></header>
+<main class="wrap">
+<section class="card">
+<h2>1. සමාගමක් සොයන්න</h2>
+<p class="muted">සමාගමේ නම හෝ CSE ticker එක ඇතුළත් කරන්න. උදා: COMB, JKH, DIAL, Commercial Bank.</p>
+<div class="row"><input id="company" placeholder="COMB හෝ සමාගමේ නම" aria-label="සමාගමේ නම හෝ ticker"><button onclick="searchCompany()">සොයන්න</button></div>
+<div id="searchResult" class="result" hidden></div>
+<div class="notice" style="margin-top:12px">සටහන: මේ වෙබ් පිටුවෙන් සජීවී කොටස් මිල ස්වයංක්‍රීයව ලබාගැනීමට තවම API සම්බන්ධ කර නැහැ. පහත සබැඳි මඟින් නිල තොරතුරු සොයාගත හැකියි.</div>
+</section>
+<section class="card">
+<h2>2. මූල්‍ය අගයන් ගණනය කරන්න</h2>
+<p class="muted">වාර්ෂික වාර්තාවෙන් අගයන් සොයාගෙන ඇතුළත් කළාම සරල ගණනයන් පෙන්වයි. අගයන් රුපියල් මිලියනවලින් වුවත් එකම ඒකකය භාවිත කරන්න.</p>
+<div class="row">
+<div><label for="profit">මෙම වසරේ ශුද්ධ ලාභය</label><input id="profit" type="number" step="any" placeholder="උදා: 1200"></div>
+<div><label for="prevProfit">පසුගිය වසරේ ශුද්ධ ලාභය</label><input id="prevProfit" type="number" step="any" placeholder="උදා: 1000"></div>
+<div><label for="debt">මුළු ණය</label><input id="debt" type="number" step="any" placeholder="උදා: 5000"></div>
+<div><label for="assets">මුළු වත්කම්</label><input id="assets" type="number" step="any" placeholder="උදා: 15000"></div>
+<div><label for="eps">EPS (කොටසකට ඉපැයුම)</label><input id="eps" type="number" step="any" placeholder="උදා: 25"></div>
+<div><label for="price">කොටසක වර්තමාන මිල (රු.)</label><input id="price" type="number" step="any" placeholder="උදා: 120"></div>
+</div>
+<div style="margin-top:12px"><button onclick="calculate()">ගණනය කරන්න</button></div>
+<div id="calcResult" class="result" hidden></div>
+</section>
+<section class="card">
+<h2>3. වාර්ෂික වාර්තාවක් කියවීමට උදව්</h2>
+<p>වාර්තාවෙන් වැදගත් කොටස් හෝ මූල්‍ය විස්තර මෙතැනට පිටපත් කරන්න. මේ අනුවාදය සම්පූර්ණ AI විශ්ලේෂණයක් නොකරන නමුත්, ඔබට පරීක්ෂා කළ යුතු ප්‍රධාන කරුණු මතක් කරයි.</p>
+<textarea id="reportText" placeholder="වාර්තාවේ ලාභය, ණය, ආදායම, අවදානම් වැනි කොටසක් මෙතැනට paste කරන්න..."></textarea>
+<div style="margin-top:10px"><button onclick="reviewReport()">පරීක්ෂා කළ යුතු කරුණු පෙන්වන්න</button></div>
+<div id="reportResult" class="result" hidden></div>
+<div class="links"><a href="https://www.cse.lk/" target="_blank" rel="noopener">නිල CSE වෙබ් අඩවිය</a><a href="https://www.google.com/search?q=site%3Acse.lk+annual+report" target="_blank" rel="noopener">CSE වාර්ෂික වාර්තා සොයන්න</a><a href="https://www.google.com/search?q=Colombo+Stock+Exchange+company+quarterly+financial+statements" target="_blank" rel="noopener">කාර්තුමය මූල්‍ය වාර්තා සොයන්න</a></div>
+</section>
+<section class="card">
+<h2>4. විශ්ලේෂණයේදී බලන්න ඕන දේ</h2>
+<ul>
+<li><b>ලාභ වර්ධනය:</b> මේ වසරේ ලාභය පසුගිය වසරට වඩා වැඩිද?</li>
+<li><b>ණය:</b> ණය වේගයෙන් වැඩිවෙනවාද? සමාගමේ වත්කම් සමඟ සසඳන්න.</li>
+<li><b>EPS:</b> කොටසකට ලැබෙන ඉපැයුම වසරෙන් වසර වැඩිද?</li>
+<li><b>P/E:</b> කොටස් මිල EPS එකෙන් බෙදූ විට ලැබේ. එකම කර්මාන්තයේ සමාගම් සමඟ සසඳන්න.</li>
+<li><b>අවදානම්:</b> වාර්තාවේ “risk”, “going concern”, “litigation”, “impairment” වැනි කොටස් කියවන්න.</li>
+</ul>
+<div class="notice">මෙය ඉගෙනුම් උපකරණයක් පමණයි; කොටස් මිලදී ගැනීමට හෝ විකිණීමට පුද්ගලික ආයෝජන උපදෙසක් නොවේ. පැරණි වාර්තා පමණක් බලා තීරණ ගන්න එපා.</div>
+</section>
+</main>
+<footer class="wrap">Stock Guru • ඉගෙනුම් සඳහා නිර්මාණය කළ ආදර්ශ වෙබ් පිටුවකි</footer>
+<script>
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function searchCompany(){
+ const q=document.getElementById('company').value.trim();
+ const box=document.getElementById('searchResult');
+ if(!q){box.hidden=false;box.innerHTML='කරුණාකර සමාගමේ නම හෝ ticker එක ඇතුළත් කරන්න.';return;}
+ const enc=encodeURIComponent(q);
+ box.hidden=false;
+ box.innerHTML='<b>'+esc(q)+'</b> සඳහා සෙවුම් සබැඳි:<div class="links"><a target="_blank" rel="noopener" href="https://www.google.com/search?q='+enc+'+site%3Acse.lk">CSE නිල තොරතුරු සොයන්න</a><a target="_blank" rel="noopener" href="https://www.google.com/search?q='+enc+'+annual+report+Sri+Lanka">වාර්ෂික වාර්තා සොයන්න</a><a target="_blank" rel="noopener" href="https://www.google.com/search?q='+enc+'+share+price+CSE">කොටස් මිල සොයන්න</a><a target="_blank" rel="noopener" href="https://www.google.com/search?q='+enc+'+quarterly+financial+statements">කාර්තුමය වාර්තා සොයන්න</a></div><p class="muted">මෙම සබැඳි නව ටැබ් එකක විවෘත වේ. මිල සහ වාර්තා තහවුරු කරගන්න නිල CSE මූලාශ්‍රයට ප්‍රමුඛත්වය දෙන්න.</p>';
+}
+function num(id){const v=document.getElementById(id).value.trim();return v===''?null:Number(v);}
+function fmt(n){return Number.isFinite(n)?n.toLocaleString('en-US',{maximumFractionDigits:2}):'ගණනය කළ නොහැක';}
+function calculate(){
+ const p=num('profit'), pp=num('prevProfit'), d=num('debt'), a=num('assets'), eps=num('eps'), price=num('price');
+ let out=[];
+ if(p!==null&&pp!==null){if(pp===0)out.push('ලාභ වර්ධනය: පසුගිය වසරේ ලාභය 0 නිසා ප්‍රතිශතය ගණනය කළ නොහැක.');else out.push('ලාභ වර්ධනය: '+fmt((p-pp)/Math.abs(pp)*100)+'%');}
+ if(d!==null&&a!==null){if(a===0)out.push('ණය/වත්කම් අනුපාතය ගණනය කළ නොහැක.');else out.push('ණය ÷ වත්කම්: '+fmt(d/a*100)+'%');}
+ if(eps!==null&&price!==null){if(eps<=0)out.push('P/E: EPS එක 0 හෝ ඍණ නිසා සාමාන්‍ය P/E අර්ථවත් නොවේ.');else out.push('P/E අනුපාතය: '+fmt(price/eps)+' ගුණයක්');}
+ if(!out.length)out.push('කරුණාකර ගණනය කිරීමට අදාළ අවම වශයෙන් අගයන් දෙකක් ඇතුළත් කරන්න.');
+ const box=document.getElementById('calcResult');box.hidden=false;box.innerHTML=out.map(x=>'<p>'+esc(x)+'</p>').join('');
+}
+function reviewReport(){
+ const t=document.getElementById('reportText').value.toLowerCase();
+ const checks=[
+ ['ලාභය/ආදායම',/(profit|revenue|income|ලාභ|ආදායම)/i],
+ ['ණය/පොලී',/(debt|borrow|loan|interest|ණය|පොලී)/i],
+ ['මුදල් ප්‍රවාහය',/(cash flow|operating cash|මුදල් ප්‍රවාහ)/i],
+ ['අවදානම්/නඩු',/(risk|litigation|lawsuit|අවදානම්|නඩු)/i],
+ ['ලාභාංශ',/(dividend|ලාභාංශ)/i],
+ ['විගණකගේ මතය',/(audit opinion|qualified opinion|auditor|විගණක)/i]
+ ];
+ const found=checks.filter(x=>x[1].test(t)).map(x=>x[0]);
+ const box=document.getElementById('reportResult');box.hidden=false;
+ if(!t.trim()){box.innerHTML='මුලින්ම වාර්තාවේ කොටසක් paste කරන්න.';return;}
+ box.innerHTML='<b>පෙළේ හඳුනාගත් මාතෘකා:</b><ul>'+ (found.length?found.map(x=>'<li>'+esc(x)+'</li>').join(''):'<li>මෙම මූලපද හමු වුණේ නැහැ. වෙනත් වාර්තා කොටසක් paste කර බලන්න.</li>')+'</ul><p><b>මතක තබාගන්න:</b> මෙය වචන හඳුනාගැනීමක් පමණයි; සමාගමේ හොඳ/නරක බව තීරණය කරන AI විශ්ලේෂණයක් නොවේ. අගයන්, පෙර වසරේ දත්ත සහ විගණකගේ වාර්තාව වෙනම පරීක්ෂා කරන්න.</p>';
+}
+document.getElementById('company').addEventListener('keydown',e=>{if(e.key==='Enter')searchCompany();});
+</script>
+</body></html>
